@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BOT_TOKEN = "8639600785:AAH07nUBaz8LdwPM-MWMIoAIBsizti17kjU"
-ADMIN_IDS = ["8406324025, 7655738256"]
+ADMIN_IDS = [8406324025]
 force_join_str = os.getenv("FORCE_JOIN_CHANNELS", "")
 FORCE_JOIN_CHANNELS = [ch.strip() for ch in force_join_str.split(",") if ch.strip()]
 IP_API_URL = "https://abbas-apis.vercel.app/api/ip?ip="
