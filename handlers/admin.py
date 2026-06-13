@@ -88,16 +88,14 @@ async def broadcast_process(message: types.Message, state: FSMContext, bot: Bot)
     )
 
 # ------------------- GIVE CREDIT (Callback & Command) -------------------
-@router.callback_query(F.data == "admin_give_credit")
-async def admin_give_credit_cb(call: types.CallbackQuery):
-    await call.answer()
+@router.callback_query(F.data == "admin_stats")
+async def admin_stats_cb(call: types.CallbackQuery):
+    await call.answer()  # <-- Must be the first line
     if call.from_user.id not in ADMIN_IDS:
         await call.message.answer("⛔ Unauthorized.")
         return
-    await call.message.edit_text(
-        f"{Emojis.CROSS} Usage: <code>/give_credit [user_id] [amount]</code>",
-        parse_mode="HTML"
-    )
+    stats = await database.get_stats()
+    await call.message.edit_text(f"Stats: {stats}", parse_mode="HTML")
 
 @router.message(Command("give_credit"))
 async def give_credit_cmd(message: types.Message):
