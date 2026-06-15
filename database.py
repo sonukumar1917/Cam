@@ -63,11 +63,28 @@ async def get_user_data(user_id):
     return None
 
 async def get_all_users():
-    def _select():
-        return supabase.table("bot_users").select("user_id").execute()
-    res = await run_sync(_select)
-    return [row['user_id'] for row in res.data]
-
+    """
+    Fetch ALL user IDs from bot_users table.
+    Handles Supabase's default limit using pagination.
+    """
+    all_users = []
+    start = 0
+    page_size = 1000  # per page
+    
+    while True:
+        def _fetch_page():
+            # Range is inclusive-exclusive: from start to start+page_size
+            return supabase.table("bot_users").select("user_id").range(start, start + page_size - 1).execute()
+        
+        res = await run_sync(_fetch_page)
+        if not res.data:
+            break
+        all_users.extend([row['user_id'] for row in res.data])
+        if len(res.data) < page_size:
+            break  # last page
+        start += page_size
+    
+    return all_users
 async def get_stats():
     def _select():
         return supabase.table("bot_users").select("*", count="exact").execute()
