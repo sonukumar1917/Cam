@@ -74,26 +74,34 @@ async def admin_give_credit_cb(call: types.CallbackQuery):
 @router.message(AdminForm.waiting_for_broadcast)
 async def broadcast_process(message: types.Message, state: FSMContext, bot: Bot):
     await state.clear()
+    
+    # Fetch ALL users without any limit
     users = await database.get_all_users()
-    count = 0
-
+    
+    # Ensure users is a flat list of user IDs
     if users and isinstance(users[0], (tuple, list)):
         users = [u[0] for u in users]
-
-    await message.answer(
-        f"{Emojis.b(Emojis.ROCKET)} Starting broadcast to {len(users)} users...",
-        parse_mode="HTML"
-    )
-
+    
+    total = len(users)
+    if total == 0:
+        await message.answer("❌ No users found in database.")
+        return
+    
+    await message.answer(f"🚀 Starting broadcast to <b>{total}</b> users...", parse_mode="HTML")
+    
+    count = 0
     for user_id in users:
         try:
             await bot.send_message(user_id, message.html_text, parse_mode="HTML")
             count += 1
-        except Exception:
+            # Respect Telegram rate limits (20-30 msg/sec)
+            await asyncio.sleep(0.05)   # 20 messages per second
+        except Exception as e:
+            print(f"Failed to send to {user_id}: {e}")
             continue
-
+    
     await message.answer(
-        f"{Emojis.b(Emojis.CHECK)} Broadcast completed! Sent to {count} users.",
+        f"✅ Broadcast completed! Sent to <b>{count}</b> out of <b>{total}</b> users.",
         parse_mode="HTML"
     )
 
