@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BOT_TOKEN = "8639600785:AAH07nUBaz8LdwPM-MWMIoAIBsizti17kjU"
+BOT_TOKEN = "8639600785:AAEIZUL4iCAjdRAQhVFI8D7bxtmCrozUIYI"
 ADMIN_IDS = [8406324025]
 force_join_str = os.getenv("FORCE_JOIN_CHANNELS", "")
 FORCE_JOIN_CHANNELS = [ch.strip() for ch in force_join_str.split(",") if ch.strip()]
